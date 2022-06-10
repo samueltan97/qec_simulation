@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from typing import List, Dict, Optional
 import numpy as np
 
-# TODO Make simulate function take in rounds and x, y agnostic i.e. to be able to plot x and y according to parameters
 
 def simulate_logical_error_rate(num_shots: int, rounds:List[int], distances: List[int], noises:List[float], \
     circuit_parameters: Dict[str, str]) -> np.ndarray:
