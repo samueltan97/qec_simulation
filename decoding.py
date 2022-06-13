@@ -5,9 +5,9 @@ import numpy as np
 import pymatching
 from typing import Callable, List
 
-def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
+def count_logical_errors(num_shots: int, **kwargs) -> int:
+    circuit = kwargs.get('circuit', False)
     shots = circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
-
     detector_parts = shots[:, :circuit.num_detectors]
     actual_observable_parts = shots[:, circuit.num_detectors:]
     predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, detector_parts)
