@@ -7,10 +7,9 @@ from functools import partial
 import numpy as np
 
 class Simulation:
-    def __init__(self, num_shots: int, rounds:List[int], distances: List[int], noises:List[float], \
+    def __init__(self, rounds:List[int], distances: List[int], noises:List[float], \
     circuit_parameters: Dict[str, str]) -> None:
         '''
-        :param num_shots: Int -> the number of shots i.e. the number of times we want to repeat the simulation
         :param rounds: List[Int] -> list containing the different number of rounds of measurement and error correction that we want to simulate
         :param distances: List[Int] -> list containing the different surface code distances that we want to simulate
         :param noises: List[Float] -> list containing the different noise parameters that we want to simulate
@@ -18,7 +17,6 @@ class Simulation:
             Important keys include "code_task" as well as the types of error we want to simulate. The same noise value would be applied \
                 to all noise parameters 
         '''
-        self.num_shots = num_shots
         self.rounds = rounds
         self.distances = distances
         self.noises = noises
@@ -106,6 +104,7 @@ class Simulation:
             plt.plot(x_axis_data, graph, label=graph_label + " = " + str(graph_label_data[index]))
         
         plt.semilogy()
+        plt.semilogx()
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         if plot_title:
