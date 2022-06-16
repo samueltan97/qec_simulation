@@ -1,3 +1,4 @@
+from os import stat
 import stim
 import decoding
 import matplotlib.pyplot as plt
@@ -5,6 +6,7 @@ from typing import List, Dict, Optional
 from multiprocessing import Pool
 from functools import partial
 import numpy as np
+from scipy.stats import beta
 
 class Simulation:
     def __init__(self, rounds:List[int], distances: List[int], noises:List[float], \
@@ -15,7 +17,7 @@ class Simulation:
         :param noises: List[Float] -> list containing the different noise parameters that we want to simulate
         :param circuit_paramaters: Dict[Str, Str] -> the keys are the keyword arguments and values are the values corresponding to the keyword arguments. \
             Important keys include "code_task" as well as the types of error we want to simulate. The same noise value would be applied \
-                to all noise parameters 
+                to all noise parameters
         '''
         self.rounds = rounds
         self.distances = distances
@@ -58,20 +60,23 @@ class Simulation:
             for n_index in range(len(self.noises)):
                 for r_index in range(len(self.rounds)):
                     pool_array = [int(num_shots//num_cores)] * num_cores
-                    pool_array.append(num_shots % num_cores)
+                    for i in range(num_shots % num_cores):
+                        pool_array[i] += 1
                     with Pool(num_cores) as p:
-                        results[d_index][n_index][r_index] = sum(p.map(partial(decoding.count_logical_errors, circuit=self.circuit_array[d_index][n_index][r_index]), pool_array))/num_shots    
+                        results[d_index][n_index][r_index] = sum(p.map(partial(decoding.count_logical_errors, circuit=self.circuit_array[d_index][n_index][r_index]), pool_array))/num_shots
                     completed_simulations += 1
-                    
-                    print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )       
+
+                    print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
         return results
 
-    def plot_simulation_results(self, simulation_results:np.ndarray, x_axis:str, x_axis_data:List[float], graph_label:str, graph_label_data:List[float], x_label:Optional[str]='' \
+    def plot_simulation_results(self, simulation_results:np.ndarray, is_semilogy:bool, x_axis:str, x_axis_data:List[float], is_semilogx:bool, graph_label:str, graph_label_data:List[float], x_label:Optional[str]='' \
         , y_label:Optional[str]='', plot_title:Optional[str]='', save_fig:bool = False, fig_name: str = 'new_fig'):
         '''
         :param simulation_results: np.ndarray -> simulation_results[distance][noise][# of rounds] = logical error rate
+        :param is_semilogy: bool -> whether to plot the y-axis data in a logarithmic axis
         :param x_axis: Str -> one of the following: "distance", "noise", "round"
         :param x_axis_data: List[float] -> list of data for the x_axis
+        :param is_semilogx: bool -> whether to plot the x-axis data in a logarithmic axis
         :param graph_label: Str -> one of the following: "distance", "noise", "round". An example would be the plot showing several x-axis vs logical error \
             rate line graphs corresponding to codes with different code distance if "distance" is given as a graph label
         :param graph_label_data: List[float] -> list of data for the different graphs to be plotted on the same plot
@@ -86,7 +91,7 @@ class Simulation:
 
         # Flatten the 3d array into 2d by naively choosing the first element of the unwanted dimension. Eg. If we want
         # to plot line graphs of logical error rate against number of rounds and each line graph corresponds to different
-        # code distance, we will flatten the dimension that corresponds to noise. 
+        # code distance, we will flatten the dimension that corresponds to noise.
         if (graph_label == 'distance' and x_axis == 'round') or (graph_label == 'round' and x_axis == 'distance'):
             filtered_simulation_results = [[j for j in i[0]] for i in simulation_results]
         elif (graph_label == 'distance' and x_axis == 'noise') or (graph_label == 'noise' and x_axis == 'distance'):
@@ -95,14 +100,14 @@ class Simulation:
             filtered_simulation_results = simulation_results[0]
         else:
             raise ValueError('The graph label should not be the same as the x-axis')
-        
+
         # Transpose the 2D array if the x-axis is now the first dimension of the array and the graph_labels are in the second
         # dimension to allow us to plot each line graph by the different graph_label_values
         if index_mapping[graph_label] > index_mapping[x_axis]:
             filtered_simulation_results = filtered_simulation_results.transpose()
         for index, graph in enumerate(filtered_simulation_results):
             plt.plot(x_axis_data, graph, label=graph_label + " = " + str(graph_label_data[index]))
-        
+
         plt.semilogy()
         plt.semilogx()
         plt.xlabel(x_label)
@@ -113,3 +118,13 @@ class Simulation:
         if save_fig:
             plt.savefig(fig_name + '.png')
         plt.show()
+
+    def create_clopper_pearson_interval(self, confidence_interval:float, num_successes: int, num_trials:int) -> tuple:
+        '''
+        :param confidence_interval: float -> the fraction for the confidence interval of interest i.e. 0.95 for 95% confidence interval
+        :param num_successes: int -> the number of successes out of the number of trials i.e. the number of logical errors
+        :param num_trials: int -> the number of trials i.e. the number of shots sampled
+        '''
+        lower_bound = beta.ppf((1 - confidence_interval)/2, num_successes, num_trials - num_successes + 1)
+        upper_bound = beta.ppf(1 - ((1 - confidence_interval)/2), num_successes + 1, num_trials - num_successes)
+        return (lower_bound, upper_bound)
