@@ -46,10 +46,14 @@ class Simulation:
                         compiled_circuit_parameters['before_round_data_depolarization'] = noise
                     self.circuit_array[d_index][n_index].append(stim.Circuit.generated(**compiled_circuit_parameters))
 
-    def simulate_logical_error_rate(self, num_shots:int, num_cores:int) -> np.ndarray:
+    def simulate_logical_error_rate(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> np.ndarray:
         '''
         :param num_shots: Int -> the number of shots i.e. the number of times we want to repeat the simulation
         :param num_cores: Int -> the number of cores to use for the computation
+        :param with_burst_error: Bool -> whether the simulation should include a single timestep burst error
+        :param burst_error_rate: Float -> the error rate for the depolarizing burst error
+        :param burst_error_timestep: List[Float] -> After which timestep when we ought to insert the burst error; 
+        List should have the same length as the list of rounds and -1 means no burst error inserted for that instance
         '''
         completed_simulations = 0
         total_simulations = len(self.rounds) * len(self.distances) * len(self.noises)
@@ -63,7 +67,10 @@ class Simulation:
                     for i in range(num_shots % num_cores):
                         pool_array[i] += 1
                     with Pool(num_cores) as p:
-                        results[d_index][n_index][r_index] = sum(p.map(partial(decoding.count_logical_errors, circuit=self.circuit_array[d_index][n_index][r_index]), pool_array))/num_shots
+                        corresponding_circuit = self.circuit_array[d_index][n_index][r_index]
+                        if with_burst_error:
+                            corresponding_circuit = self.insert_burst_error(corresponding_circuit, burst_error_rate, burst_error_timestep[r_index])
+                        results[d_index][n_index][r_index] = sum(p.map(partial(decoding.count_logical_errors, circuit=corresponding_circuit), pool_array))/num_shots
                     completed_simulations += 1
 
                     print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
@@ -108,8 +115,10 @@ class Simulation:
         for index, graph in enumerate(filtered_simulation_results):
             plt.plot(x_axis_data, graph, label=graph_label + " = " + str(graph_label_data[index]))
 
-        plt.semilogy()
-        plt.semilogx()
+        if is_semilogx:
+            plt.semilogx()
+        if is_semilogy:
+            plt.semilogy()
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         if plot_title:
@@ -128,3 +137,43 @@ class Simulation:
         lower_bound = beta.ppf((1 - confidence_interval)/2, num_successes, num_trials - num_successes + 1)
         upper_bound = beta.ppf(1 - ((1 - confidence_interval)/2), num_successes + 1, num_trials - num_successes)
         return (lower_bound, upper_bound)
+    
+    def insert_burst_error(self, circuit: stim.Circuit, burst_error_rate: float, timestep_num: int,) -> stim.Circuit:
+        '''
+        :param circuit: stim.Circuit -> the circuit that the burst error should be added to
+        :param burst_error_rate: Float -> the error rate for the depolarizing burst error
+        :param timestep_num: Int -> at the end of which round should the burst error occur (has to be lesser or equal to the number of rounds)
+        '''
+        # if timestep_num is -1, burst error will not be inserted into the circuit
+        if timestep_num == -1:
+            return circuit
+        else:
+            n = circuit.num_qubits
+            result = stim.Circuit()
+            for instruction in circuit:
+                if isinstance(instruction, stim.CircuitRepeatBlock):
+                    result.append(stim.CircuitRepeatBlock(
+                        repeat_count=timestep_num - 1,
+                        body=instruction.body_copy()
+                    ))
+                    result.append('DEPOLARIZE1', range(n), burst_error_rate)
+                    result.append(stim.CircuitRepeatBlock(
+                        repeat_count=instruction.repeat_count - timestep_num + 1,
+                        body=instruction.body_copy()
+                    ))
+                else:
+                    result.append(instruction)
+            return result
+
+    def compute_error_bars(self, logical_error_rates: np.ndarray, confidence_interval:float, num_shots: int) -> List:
+        '''
+        :param logical_error_rates: np.ndarray -> 1D-array with logical error rate values
+        :param confidence_interval: Float -> confidence interval percentage in decimal i.e. 95% CI would be 0.95
+        :param num_shots: Int -> the number of shots taken by the sampler
+        '''
+        CI_upper_bound_logical_error_rates = [self.create_clopper_pearson_interval(confidence_interval, x*num_shots, num_shots)[1] for x in logical_error_rates]
+        CI_lower_bound_logical_error_rates = [self.create_clopper_pearson_interval(confidence_interval, x*num_shots, num_shots)[0] for x in logical_error_rates]
+        for i in range(len(logical_error_rates)):
+            CI_upper_bound_logical_error_rates[i] = abs(logical_error_rates[i] - CI_upper_bound_logical_error_rates[i])
+            CI_lower_bound_logical_error_rates[i] = abs(logical_error_rates[i] - CI_lower_bound_logical_error_rates[i])
+        return [CI_lower_bound_logical_error_rates, CI_upper_bound_logical_error_rates]
