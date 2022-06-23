@@ -1,149 +1,54 @@
 nohup: ignoring input
-Completed: 1/42
-Completed: 2/42
-Completed: 3/42
-Completed: 4/42
-Completed: 5/42
-Completed: 6/42
-Completed: 7/42
-Completed: 8/42
-Completed: 9/42
-Completed: 10/42
-Completed: 11/42
-Completed: 12/42
-Completed: 13/42
-Completed: 14/42
-Completed: 15/42
-Completed: 16/42
-Completed: 17/42
-Completed: 18/42
-Completed: 19/42
-Completed: 20/42
-Completed: 21/42
-Completed: 22/42
-Completed: 23/42
-Completed: 24/42
-Completed: 25/42
-Completed: 26/42
-Completed: 27/42
-Completed: 28/42
-Completed: 29/42
-Completed: 30/42
-Completed: 31/42
-Completed: 32/42
-Completed: 33/42
-Completed: 34/42
-Completed: 35/42
-Completed: 36/42
-Completed: 37/42
-Completed: 38/42
-Completed: 39/42
-Completed: 40/42
-Completed: 41/42
-Completed: 42/42
+Completed: 1/30
+Completed: 2/30
+Completed: 3/30
+Completed: 4/30
+Completed: 5/30
+Completed: 6/30
+Completed: 7/30
+Completed: 8/30
+Completed: 9/30
+Completed: 10/30
+Completed: 11/30
+Completed: 12/30
+Completed: 13/30
+Completed: 14/30
+Completed: 15/30
+Completed: 16/30
+Completed: 17/30
+Completed: 18/30
+Completed: 19/30
+Completed: 20/30
+Completed: 21/30
+Completed: 22/30
+Completed: 23/30
+Completed: 24/30
+Completed: 25/30
+Completed: 26/30
+Completed: 27/30
+Completed: 28/30
+Completed: 29/30
+Completed: 30/30
 Time taken
-6328.819039106369
+558.9339094161987
 Burst Error Rate
-0.025
-[[[0.1585 0.2237 0.2698 0.3268 0.3617 0.4222 0.4395 0.1731 0.2296 0.2858
-   0.3235 0.3692 0.4141 0.4379]]
+0.1
+[[[0.167  0.2251 0.2707 0.3089 0.347  0.2186 0.2713 0.3134 0.3521 0.3724]]
 
- [[0.0389 0.0722 0.1161 0.1056 0.1156 0.1596 0.1719 0.0494 0.0858 0.121
-   0.1133 0.1324 0.1702 0.1732]]
+ [[0.0363 0.0569 0.0745 0.0942 0.1033 0.1218 0.1421 0.1537 0.1707 0.1844]]
 
- [[0.0158 0.0341 0.0261 0.0519 0.0498 0.0358 0.0395 0.0225 0.0422 0.0326
-   0.0562 0.0541 0.0483 0.0476]]]
-Completed: 1/42
-Completed: 2/42
-Completed: 3/42
-Completed: 4/42
-Completed: 5/42
-Completed: 6/42
-Completed: 7/42
-Completed: 8/42
-Completed: 9/42
-Completed: 10/42
-Completed: 11/42
-Completed: 12/42
-Completed: 13/42
-Completed: 14/42
-Completed: 15/42
-Completed: 16/42
-Completed: 17/42
-Completed: 18/42
-Completed: 19/42
-Completed: 20/42
-Completed: 21/42
-Completed: 22/42
-Completed: 23/42
-Completed: 24/42
-Completed: 25/42
-Completed: 26/42
-Completed: 27/42
-Completed: 28/42
-Completed: 29/42
-Completed: 30/42
-Completed: 31/42
-Completed: 32/42
-Completed: 33/42
-Completed: 34/42
-Completed: 35/42
-Completed: 36/42
-Completed: 37/42
-Completed: 38/42
-Completed: 39/42
-Completed: 40/42
-Completed: 41/42
-Completed: 42/42
-Time taken
-6354.040253400803
-Burst Error Rate
-0.05
-[[[0.1557 0.2224 0.2697 0.3154 0.3617 0.4133 0.4287 0.1886 0.2407 0.2891
-   0.3358 0.3844 0.4311 0.4421]]
-
- [[0.0422 0.0759 0.1078 0.1065 0.1182 0.1616 0.1744 0.0694 0.1056 0.136
-   0.1267 0.1451 0.1837 0.1929]]
-
- [[0.0168 0.0348 0.0275 0.0531 0.0506 0.0362 0.0463 0.037  0.0617 0.0463
-   0.0774 0.0762 0.0565 0.0607]]]
-Completed: 1/42
-Completed: 2/42
-Completed: 3/42
-Completed: 4/42
-Completed: 5/42
-Completed: 6/42
-Completed: 7/42
-Completed: 8/42
-Completed: 9/42
-Completed: 10/42
-Completed: 11/42
-Completed: 12/42
-Completed: 13/42
-Completed: 14/42
-Completed: 15/42
-Completed: 16/42
-Completed: 17/42
-Completed: 18/42
-Completed: 19/42
-Completed: 20/42
-Completed: 21/42
-Completed: 22/42
-Completed: 23/42
-Completed: 24/42
-Completed: 25/42
-Completed: 26/42
-Completed: 27/42
-Completed: 28/42
-Completed: 29/42
-Completed: 30/42
-Completed: 31/42
-Completed: 32/42
-Completed: 33/42
-Completed: 34/42
-Completed: 35/42
-Completed: 36/42
-Completed: 37/42
-Completed: 38/42
-Completed: 39/42
-Completed: 40/42
+ [[0.0091 0.0106 0.0159 0.0222 0.0198 0.0905 0.095  0.0999 0.1039 0.1117]]]
+Completed: 1/30
+Completed: 2/30
+Completed: 3/30
+Completed: 4/30
+Completed: 5/30
+Completed: 6/30
+Completed: 7/30
+Completed: 8/30
+Completed: 9/30
+Completed: 10/30
+Completed: 11/30
+Completed: 12/30
+Completed: 13/30
+Completed: 14/30

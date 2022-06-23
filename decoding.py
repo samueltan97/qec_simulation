@@ -34,7 +34,7 @@ def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
     for k in range(num_shots):
         expanded_det = np.resize(det_samples[k], num_dets + 1)
         expanded_det[-1] = 0
-        predictions[k] = matching_graph.decode(expanded_det)
+        predictions[k] = matching_graph.decode(expanded_det, num_neighbours=None)
     return predictions
 
 

@@ -7,6 +7,7 @@ from multiprocessing import Pool
 from functools import partial
 import numpy as np
 from scipy.stats import beta
+import pandas as pd
 
 class Simulation:
     def __init__(self, rounds:List[int], distances: List[int], noises:List[float], \
@@ -75,6 +76,21 @@ class Simulation:
 
                     print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
         return results
+    
+    def simulation_results_to_csv(self, simulation_results:dict, csv_name:str):
+        '''
+        :param simulation_results: Dict -> dictionary with burst error rates as keys and 3D array (distance, noise, round) as value
+        :param csv_name: Str -> name of the csv file without .csv at the end
+        '''
+        result = []
+        for burst_error_rate in list(simulation_results.keys()):
+            for d_index, distance in enumerate(self.distances):
+                for n_index, noise in enumerate(self.noises):
+                    for r_index, round in enumerate(self.rounds):
+                        logical_error_rate = simulation_results[burst_error_rate][d_index][n_index][r_index] 
+                        result.append([burst_error_rate, distance, noise, round, logical_error_rate])
+        df = pd.DataFrame(result, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate']) 
+        df.to_csv('./' + csv_name + '.csv')
 
     def plot_simulation_results(self, simulation_results:np.ndarray, is_semilogy:bool, x_axis:str, x_axis_data:List[float], is_semilogx:bool, graph_label:str, graph_label_data:List[float], x_label:Optional[str]='' \
         , y_label:Optional[str]='', plot_title:Optional[str]='', save_fig:bool = False, fig_name: str = 'new_fig'):
