@@ -23,4 +23,4 @@
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 
-singularity exec /drop/stim_container.sif python main.py
+singularity exec /home/stan/stim_container.sif python cluster.py
