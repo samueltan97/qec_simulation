@@ -31,9 +31,9 @@ if __name__ == "__main__":
     data_dictionary = dict()
     rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
-    noises = [0.02]
+    noises = [0.015]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
-    burst_error_rates = np.linspace(0.1, 0.12, 10)
+    burst_error_rates = np.linspace(0.15, 0.125, 10)
     for burst_error_rate in burst_error_rates:
         st = time.time()
         simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         print(burst_error_rate)
         print(simulation_results)
         data_dictionary[burst_error_rate] = simulation_results
-    simulation.simulation_results_to_csv(data_dictionary, 'new_results')
+    simulation.simulation_results_to_csv(data_dictionary, '01_new_results')
     # data_dictionary[0.025] = [[[0.1647, 0.2253, 0.2667, 0.315, 0.3458, 0.1755, 0.2265, 0.2787, 0.317, 0.3465]],\
     #     [[0.0397, 0.0542, 0.0753, 0.093, 0.1069, 0.0443, 0.0626, 0.0846, 0.1005, 0.1129]], [[0.0071,\
     #     0.0112, 0.0186, 0.0204, 0.0211, 0.0136, 0.0176, 0.0203, 0.0225, 0.0285]]]
@@ -58,6 +58,8 @@ if __name__ == "__main__":
     #     [[0.0402, 0.0562, 0.0745, 0.0896, 0.1069, 0.1614, 0.1743, 0.1858, 0.2027, 0.2186]], [[0.0074, 0.0127,\
     #     0.0164, 0.0186, 0.025, 0.1387, 0.1417, 0.1458, 0.1606, 0.1554]]]
     
+    
+    
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':''})
     
@@ -67,7 +69,7 @@ if __name__ == "__main__":
         logical_burst_error_rate = []
         for burst_error_rate in burst_error_rates:
             logical_error_rates = data_dictionary[burst_error_rate][d_index][0]
-            CI_logical_error_rates = simulation.compute_error_bars(simulation, logical_error_rates, 0.95, 10000)
+            CI_logical_error_rates = simulation.compute_error_bars(logical_error_rates, 0.95, 10000)
             plt.ylabel('Logical Error Rate')
             plt.semilogy()
             plt.xlabel('Number of Rounds')

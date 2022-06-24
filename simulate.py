@@ -91,6 +91,8 @@ class Simulation:
                         result.append([burst_error_rate, distance, noise, round, logical_error_rate])
         df = pd.DataFrame(result, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate']) 
         df.to_csv('./' + csv_name + '.csv')
+    
+    
 
     def plot_simulation_results(self, simulation_results:np.ndarray, is_semilogy:bool, x_axis:str, x_axis_data:List[float], is_semilogx:bool, graph_label:str, graph_label_data:List[float], x_label:Optional[str]='' \
         , y_label:Optional[str]='', plot_title:Optional[str]='', save_fig:bool = False, fig_name: str = 'new_fig'):
