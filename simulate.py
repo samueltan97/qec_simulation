@@ -47,7 +47,7 @@ class Simulation:
                         compiled_circuit_parameters['before_round_data_depolarization'] = noise
                     self.circuit_array[d_index][n_index].append(stim.Circuit.generated(**compiled_circuit_parameters))
 
-    def simulate_logical_error_rate(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> np.ndarray:
+    def simulate_logical_error_rate(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> pd.DataFrame:
         '''
         :param num_shots: Int -> the number of shots i.e. the number of times we want to repeat the simulation
         :param num_cores: Int -> the number of cores to use for the computation
@@ -60,7 +60,7 @@ class Simulation:
         total_simulations = len(self.rounds) * len(self.distances) * len(self.noises)
         # Initialize 3D array that will contain the logical error rate for each simulation corresponding
         # to the code distance, noise parameter, and number of rounds
-        results = np.zeros(shape=(len(self.distances), len(self.noises), len(self.rounds)))
+        results = []
         for d_index in range(len(self.distances)):
             for n_index in range(len(self.noises)):
                 for r_index in range(len(self.rounds)):
@@ -71,26 +71,25 @@ class Simulation:
                         corresponding_circuit = self.circuit_array[d_index][n_index][r_index]
                         if with_burst_error:
                             corresponding_circuit = self.insert_burst_error(corresponding_circuit, burst_error_rate, burst_error_timestep[r_index])
-                        results[d_index][n_index][r_index] = sum(p.map(partial(decoding.count_logical_errors, circuit=corresponding_circuit), pool_array))/num_shots
+                        logical_error_rate = sum(p.map(partial(decoding.count_logical_errors, circuit=corresponding_circuit), pool_array))/num_shots
+                        results.append([burst_error_rate, self.distances[d_index], self.noises[n_index], self.rounds[r_index], logical_error_rate])
                     completed_simulations += 1
 
                     print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
-        return results
+        return pd.DataFrame(results, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate'])
     
     def simulation_results_to_csv(self, simulation_results:dict, csv_name:str):
         '''
-        :param simulation_results: Dict -> dictionary with burst error rates as keys and 3D array (distance, noise, round) as value
+        :param simulation_results: Dict -> dictionary with burst error rates as keys and dataframes as value
         :param csv_name: Str -> name of the csv file without .csv at the end
         '''
-        result = []
+        df_array = []
         for burst_error_rate in list(simulation_results.keys()):
-            for d_index, distance in enumerate(self.distances):
-                for n_index, noise in enumerate(self.noises):
-                    for r_index, round in enumerate(self.rounds):
-                        logical_error_rate = simulation_results[burst_error_rate][d_index][n_index][r_index] 
-                        result.append([burst_error_rate, distance, noise, round, logical_error_rate])
-        df = pd.DataFrame(result, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate']) 
-        df.to_csv('./' + csv_name + '.csv')
+            df_array.append(simulation_results[burst_error_rate])
+        final_df = df_array[0]
+        for df in df_array[1:]:
+            final_df = pd.concat([final_df, df], ignore_index=True)
+        final_df.to_csv('./' + csv_name + '.csv')
     
     
 
@@ -183,7 +182,7 @@ class Simulation:
                     result.append(instruction)
             return result
 
-    def compute_error_bars(self, logical_error_rates: np.ndarray, confidence_interval:float, num_shots: int) -> List:
+    def compute_clopper_pearson_error_bars(self, logical_error_rates: np.ndarray, confidence_interval:float, num_shots: int) -> List:
         '''
         :param logical_error_rates: np.ndarray -> 1D-array with logical error rate values
         :param confidence_interval: Float -> confidence interval percentage in decimal i.e. 95% CI would be 0.95
@@ -195,3 +194,6 @@ class Simulation:
             CI_upper_bound_logical_error_rates[i] = abs(logical_error_rates[i] - CI_upper_bound_logical_error_rates[i])
             CI_lower_bound_logical_error_rates[i] = abs(logical_error_rates[i] - CI_lower_bound_logical_error_rates[i])
         return [CI_lower_bound_logical_error_rates, CI_upper_bound_logical_error_rates]
+
+    def compute_sigma_values(self, logical_error_rates: np.ndarray, num_shots: int) -> List:
+        return [np.std([1] * int(x*num_shots) + [0] * int((1-x) * num_shots)) for x in logical_error_rates]
