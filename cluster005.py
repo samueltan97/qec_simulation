@@ -26,12 +26,12 @@ if __name__ == "__main__":
     distances = [3, 5, 7]
     noises = [0.005]
     burst_error_timesteps = [-1, -1, -1, -1, -1, -1, -1, -1, -1, 32, 40, 48, 56, 64, 72, 80, 88, 96]
-    burst_error_rates = np.linspace(0.1, 0.15, 5)
+    burst_error_rates = np.linspace(0.12, 0.15, 10)
     for burst_error_rate in burst_error_rates:
         st = time.time()
         simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':''})
-        simulation_results = simulation.simulate_logical_error_rate(10000, 56, True, burst_error_rate, burst_error_timesteps)
+        simulation_results = simulation.simulate_logical_error_rate(100000, 56, True, burst_error_rate, burst_error_timesteps)
         print('Time taken')
         print(time.time() - st)
         print('Burst Error Rate')

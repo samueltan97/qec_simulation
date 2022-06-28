@@ -196,4 +196,4 @@ class Simulation:
         return [CI_lower_bound_logical_error_rates, CI_upper_bound_logical_error_rates]
 
     def compute_sigma_values(self, logical_error_rates: np.ndarray, num_shots: int) -> List:
-        return [np.std([1] * int(x*num_shots) + [0] * int((1-x) * num_shots)) for x in logical_error_rates]
+        return [np.sqrt(x*(1-x)/num_shots) for x in logical_error_rates]

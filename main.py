@@ -86,10 +86,40 @@ if __name__ == "__main__":
 
     plt.legend()
     plt.ylabel('Logical Burst Error Rate')
-    plt.semilogy()
+    # plt.semilogy()
     plt.xlabel('Burst Error Rate')
     plt.savefig('2%_phenomenological_noise_burst_error_threshold_new.png', bbox_inches="tight")
     plt.clf()
+
+    # iterate through the plot colors
+    # colors = itertools.cycle(color_list)
+    # 100000 samples
+    '''
+    For threshold plots, we want double the number of data points. Can try fitting a linear plot.
+    Relabel error fitting as wilson interval
+    Check out section 3.3 in reading as well as numerics section
+    Read overlapping recovery method section in topological quantum memory
+
+
+    For the note to John (target audience: someone who knows toric code but not super familiar with error models)
+    Main parts:
+    1. Describe what a burst error is and talk about the error models
+    2. Describe what exactly I am simulating
+    3. Discuss what the results are
+
+    Burst error induced burst error
+    Assumptions: 1. We know that a cosmic ray occurred 2. The device is capable of recovering from it (device-side and not information-side)
+    Try to infer when the burst error happened from the spike in error rate
+
+    Control error induced burst error (laser power excursions)
+    CPU clock can mess up tau to mess up the bit flip gate (overrotation) (refer to first pic) [tau should respect a normal distribution]
+    Coupling strength is dependent on the frequency of the laser and its intensity (refer to first picture). Laser could screw up [J should respect a normal distribution. The long tails of the distribution are burst errors]
+
+    Scenario 1: We know how much we have overrotated by : Can just apply the inverse but might not be practical
+    Scenario 2: We don't know how much we have overrotated by: Experimentally relevant
+
+    Very hard when we don't know when the burst error took place
+    '''
         
         
 
