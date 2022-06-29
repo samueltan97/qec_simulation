@@ -24,7 +24,7 @@ if __name__ == "__main__":
     data_dictionary = dict()
     rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
-    noises = [0.005]
+    noises = [0.015]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
     burst_error_rates = np.linspace(0.1, 0.15, 5)
     # for burst_error_rate in burst_error_rates:
@@ -54,12 +54,12 @@ if __name__ == "__main__":
             sub_df = data_dictionary[(np.isclose(data_dictionary['Burst_Error_Rate'], burst_error_rate)) & (data_dictionary['Distance'] == distance)]
             logical_error_rates = sub_df['Logical_Error_Rate'].to_numpy()
             CI_logical_error_rates = simulation.compute_clopper_pearson_error_bars(logical_error_rates, 0.95, 10000)
-            norm_dist_error_for_logical_error_rates = simulation.compute_sigma_values(logical_error_rates, 10000)
+            norm_dist_error_for_logical_error_rates = simulation.compute_sigma_values_with_wald_interval(logical_error_rates, 10000)
             plt.ylabel('Logical Error Rate')
             plt.semilogy()
             plt.xlabel('Number of Rounds')
-            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 2%, \nburst error rate = ' + str(burst_error_rate * 100) +'%')
-            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 2%')
+            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 1.5%, \nburst error rate = ' + str(burst_error_rate * 100) +'%')
+            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 1.5%')
             plt.errorbar(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], yerr=[x[int(len(rounds)/2):] for x in CI_logical_error_rates], fmt='o', capsize=10)
             plt.errorbar(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], yerr=[x[:int(len(rounds)/2)] for x in CI_logical_error_rates], fmt='o', capsize=10)
             
@@ -81,14 +81,14 @@ if __name__ == "__main__":
     
     for key in list(logical_burst_error_rate_dict.keys()):
         print(key, logical_burst_error_rate_dict[key])
-        plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], label='distance = ' + str(key)+ ', phenomenological noise = 2%')
+        plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
         plt.errorbar(burst_error_rates, logical_burst_error_rate_dict[key][0], yerr=logical_burst_error_rate_dict[key][1], fmt='o', capsize=10)
 
     plt.legend()
     plt.ylabel('Logical Burst Error Rate')
     # plt.semilogy()
     plt.xlabel('Burst Error Rate')
-    plt.savefig('2%_phenomenological_noise_burst_error_threshold_new.png', bbox_inches="tight")
+    plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new.png', bbox_inches="tight")
     plt.clf()
 
     # iterate through the plot colors
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     # 100000 samples
     '''
     For threshold plots, we want double the number of data points. Can try fitting a linear plot.
-    Relabel error fitting as wilson interval
+    Relabel error fitting as wald interval
     Check out section 3.3 in reading as well as numerics section
     Read overlapping recovery method section in topological quantum memory
 

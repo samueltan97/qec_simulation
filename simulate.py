@@ -195,5 +195,5 @@ class Simulation:
             CI_lower_bound_logical_error_rates[i] = abs(logical_error_rates[i] - CI_lower_bound_logical_error_rates[i])
         return [CI_lower_bound_logical_error_rates, CI_upper_bound_logical_error_rates]
 
-    def compute_sigma_values(self, logical_error_rates: np.ndarray, num_shots: int) -> List:
+    def compute_sigma_values_with_wald_interval(self, logical_error_rates: np.ndarray, num_shots: int) -> List:
         return [np.sqrt(x*(1-x)/num_shots) for x in logical_error_rates]
