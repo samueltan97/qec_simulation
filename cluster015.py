@@ -22,10 +22,10 @@ if __name__ == "__main__":
     import pandas as pd
 
     data_dictionary = dict()
-    rounds = [64, 80, 96, 112, 128, 144, 160, 176, 192, 64, 80, 96, 112, 128, 144, 160, 176, 192]
+    rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
     noises = [0.015]
-    burst_error_timesteps = [-1, -1, -1, -1, -1, -1, -1, -1, -1, 32, 40, 48, 56, 64, 72, 80, 88, 96]
+    burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
     burst_error_rates = np.linspace(0.1, 0.13, 10)
     for burst_error_rate in burst_error_rates:
         st = time.time()
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         print(burst_error_rate)
         print(simulation_results)
         data_dictionary[burst_error_rate] = simulation_results
-    simulation.simulation_results_to_csv(data_dictionary, '015_new_results_expanded')
+        simulation.simulation_results_to_csv(data_dictionary, '015_new_results_expanded_0629')
     
     # data_dictionary = pd.read_csv('015_new_results.csv')
     

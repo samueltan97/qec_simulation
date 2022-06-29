@@ -2,7 +2,7 @@
 
 # Submit this script with: sbatch sbatch.sh
 
-#SBATCH --time=12:00:00   # walltime
+#SBATCH --time=72:00:00   # walltime
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=56
 #SBATCH --partition=any
@@ -22,5 +22,5 @@
 ## /SBATCH -e slurm.%N.%j.err # STDERR
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
-module load singularity
+module load singularity/3.8.0
 singularity exec /home/stan/stim_container.sif python cluster.py
