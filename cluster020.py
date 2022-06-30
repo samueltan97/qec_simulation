@@ -31,7 +31,7 @@ if __name__ == "__main__":
         st = time.time()
         simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':''})
-        simulation_results = simulation.simulate_logical_error_rate(100000, 56, True, burst_error_rate, burst_error_timesteps)
+        simulation_results = simulation.simulate_logical_error_rate(100000, 32, True, burst_error_rate, burst_error_timesteps)
         print('Time taken')
         print(time.time() - st)
         print('Burst Error Rate')
