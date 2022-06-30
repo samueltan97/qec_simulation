@@ -38,7 +38,7 @@ if __name__ == "__main__":
         print(burst_error_rate)
         print(simulation_results)
         data_dictionary[burst_error_rate] = simulation_results
-        simulation.simulation_results_to_csv(data_dictionary, '020_new_results_expanded_0630')
+        simulation.simulation_results_to_csv(data_dictionary, '020_new_results_expanded_0630_wchris')
     
     # data_dictionary = pd.read_csv('020_new_results_expanded_0630.csv')
     
