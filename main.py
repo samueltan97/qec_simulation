@@ -18,15 +18,19 @@ if __name__ == "__main__":
     from functools import partial
     import matplotlib.pyplot as plt
     from scipy.optimize import curve_fit
+    from scipy.stats import linregress
     import stim
     import pandas as pd
+    from itertools import cycle
+
+    colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
 
     data_dictionary = dict()
     rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
-    noises = [0.015]
+    noises = [0.02]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
-    burst_error_rates = np.linspace(0.1, 0.15, 5)
+    burst_error_rates = np.linspace(0.1, 0.12, 10)
     # for burst_error_rate in burst_error_rates:
     #     st = time.time()
     #     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
@@ -40,7 +44,7 @@ if __name__ == "__main__":
     #     data_dictionary[burst_error_rate] = simulation_results
     # simulation.simulation_results_to_csv(data_dictionary, '005_new_results')
     
-    data_dictionary = pd.read_csv('015_new_results.csv')
+    data_dictionary = pd.read_csv('020_new_results.csv')
     
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':''})
@@ -70,24 +74,33 @@ if __name__ == "__main__":
             logical_burst_error_rate_sigmas.append(2*np.sqrt(np.diag(pcov))[1])        
             x = np.concatenate((np.linspace(1, 300, 300), np.linspace(1, 300, 300)))
             y = logical_error_rate_function_with_burst_error(x, *popt)
+            if distance == 3 and burst_error_rate == 0.1:
+                print(popt)
+                print(2*np.sqrt(np.diag(pcov)))
             max_y = logical_error_rate_function_with_burst_error(x, *(popt + 2*np.sqrt(np.diag(pcov))))
             min_y = logical_error_rate_function_with_burst_error(x, *(popt - 2*np.sqrt(np.diag(pcov))))
-            plt.plot(x[int(len(x)/2):], y[int(len(x)/2):], 'r--', label='Burst Model Fit')
-            plt.plot(x[:int(len(x)/2)], y[:int(len(x)/2)], 'g--', label='Burstless Model Fit')
+            plt.plot(x[int(len(x)/2):], y[int(len(x)/2):], c='tab:blue', linestyle='dashed', label='Burst Model Fit')
+            plt.plot(x[:int(len(x)/2)], y[:int(len(x)/2)], c='tab:orange', linestyle='dashed', label='Burstless Model Fit')
             plt.legend()
             plt.savefig(str(distance) + '_' + str(burst_error_rate) + '_new.png', bbox_inches="tight")
             plt.clf()
         logical_burst_error_rate_dict[distance] = (logical_burst_error_rates, logical_burst_error_rate_sigmas)
     
     for key in list(logical_burst_error_rate_dict.keys()):
+        color = next(colors)
         print(key, logical_burst_error_rate_dict[key])
-        plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
-        plt.errorbar(burst_error_rates, logical_burst_error_rate_dict[key][0], yerr=logical_burst_error_rate_dict[key][1], fmt='o', capsize=10)
+        # plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], c=color, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
+        plt.errorbar(burst_error_rates, logical_burst_error_rate_dict[key][0], yerr=logical_burst_error_rate_dict[key][1], c=color, fmt='o', capsize=10, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
+        res = linregress(burst_error_rates, logical_burst_error_rate_dict[key][0])
+        plt.plot(np.linspace(0.1, 0.12, 300), res.intercept + res.slope*np.linspace(0.1, 0.12, 300), c=color)
 
     plt.legend()
-    plt.ylabel('Logical Burst Error Rate')
+    plt.ylabel('Logical Error Burst Rate')
     # plt.semilogy()
-    plt.xlabel('Burst Error Rate')
+    plt.xlabel('Error Burst Rate')
+    plt.grid(b=True, which='major', linestyle='-')
+    plt.grid(b=True, which='minor', linestyle='--')
+    plt.minorticks_on()
     plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new.png', bbox_inches="tight")
     plt.clf()
 
