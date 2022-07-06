@@ -42,10 +42,9 @@ class Simulation:
                     if compiled_circuit_parameters.get('after_reset_flip_probability') is not None:
                         compiled_circuit_parameters['after_reset_flip_probability'] = noise
                     if compiled_circuit_parameters.get('before_measure_flip_probability') is not None:
-                        compiled_circuit_parameters['before_measure_flip_probability'] = noise
+                        compiled_circuit_parameters['before_measure_flip_probability'] =  2* noise /3
                     if compiled_circuit_parameters.get('before_round_data_depolarization') is not None:
                         compiled_circuit_parameters['before_round_data_depolarization'] = noise
-                    # print(repr(stim.Circuit.generated(**compiled_circuit_parameters)))
                     self.circuit_array[d_index][n_index].append(stim.Circuit.generated(**compiled_circuit_parameters))
 
     def simulate_logical_error_rate(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> pd.DataFrame:

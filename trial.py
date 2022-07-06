@@ -16,21 +16,21 @@ if __name__ == "__main__":
     from scipy.stats import linregress
 
     colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
-    num_shots = 1000
+    num_shots = 10000
     data_dictionary = dict()
     rounds = [30, 50, 70]
     distances = [3, 5, 7]
-    noises = np.linspace(0.03, 0.06,5)
+    noises = np.linspace(0.03, 0.04,5)
 
-    # st = time.time()
-    # simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
-    #     circuit_parameters={'code_task': 'surface_code:unrotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-    # simulation_results = simulation.simulate_logical_error_rate(num_shots, 12, False)
-    # print('Time taken')
-    # print(time.time() - st)
-    # print(simulation_results)
-    # data_dictionary[0] = simulation_results
-    # simulation.simulation_results_to_csv(data_dictionary, 'phenom_new')
+    st = time.time()
+    simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
+        circuit_parameters={'code_task': 'surface_code:unrotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
+    simulation_results = simulation.simulate_logical_error_rate(num_shots, 1, False)
+    print('Time taken')
+    print(time.time() - st)
+    print(simulation_results)
+    data_dictionary[0] = simulation_results
+    simulation.simulation_results_to_csv(data_dictionary, 'phenom_new')
     
     
     data_dictionary = pd.read_csv('phenom_new.csv')

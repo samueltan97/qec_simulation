@@ -20,7 +20,7 @@ if __name__ == "__main__":
     for d in [3, 5, 7]:
         xs = []
         ys = []
-        for noise in [0.02, 0.024, 0.028, 0.032, 0.036]:
+        for noise in np.linspace(0.03, 0.06,5):
             circuit = stim.Circuit.generated(
                 "surface_code:unrotated_memory_z",
                 rounds=d * 10,

@@ -4,10 +4,10 @@
 
 #SBATCH --time=72:00:00   # walltime
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=56
+#SBATCH --cpus-per-task=32
 #SBATCH --partition=any
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --mem-per-cpu=1G   # memory per CPU core
+#SBATCH --mem-per-cpu=28G   # memory per CPU core
 #SBATCH -J burst-error-threshold   # job name
 #SBATCH --mail-user=stan@caltech.edu   # email address
 

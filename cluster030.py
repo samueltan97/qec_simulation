@@ -24,27 +24,28 @@ if __name__ == "__main__":
     from scipy.stats import linregress
 
     colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
+    num_shots = 100000
     data_dictionary = dict()
     rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
-    noises = [0.005]
-    num_shots = 100000
+    noises = [0.03]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
-    burst_error_rates = np.linspace(0.11, 0.14, 10)
+    burst_error_rates = np.linspace(0.1, 0.13, 10)
     for burst_error_rate in burst_error_rates:
         st = time.time()
         simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-        simulation_results = simulation.simulate_logical_error_rate(num_shots, 32, True, burst_error_rate, burst_error_timesteps)
+        simulation_results = simulation.simulate_logical_error_rate(100000, 32, True, burst_error_rate, burst_error_timesteps)
         print('Time taken')
         print(time.time() - st)
         print('Burst Error Rate')
         print(burst_error_rate)
         print(simulation_results)
         data_dictionary[burst_error_rate] = simulation_results
-        simulation.simulation_results_to_csv(data_dictionary, '005_results_expanded_0705')
+        simulation.simulation_results_to_csv(data_dictionary, '030_results_expanded_0705')
     
-    data_dictionary = pd.read_csv('005_results_expanded_0705.csv')
+    
+    data_dictionary = pd.read_csv('030_results_expanded_0705.csv')
     
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
@@ -65,8 +66,8 @@ if __name__ == "__main__":
             plt.ylabel('Logical Error Rate')
             plt.semilogy()
             plt.xlabel('Number of Rounds')
-            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 0.5%, \nburst error rate = ' + str(burst_error_rate * 100) +'%')
-            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 0.5%')
+            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 3.0%, \nburst error rate = ' + str(burst_error_rate * 100) +'%')
+            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 3.0%')
             plt.errorbar(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], yerr=[x[int(len(rounds)/2):] for x in CI_logical_error_rates], fmt='o', capsize=10)
             plt.errorbar(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], yerr=[x[:int(len(rounds)/2)] for x in CI_logical_error_rates], fmt='o', capsize=10)
             
@@ -91,7 +92,7 @@ if __name__ == "__main__":
         # plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], c=color, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
         plt.errorbar(burst_error_rates, logical_burst_error_rate_dict[key][0], yerr=logical_burst_error_rate_dict[key][1], c=color, fmt='o', capsize=10, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
         res = linregress(burst_error_rates, logical_burst_error_rate_dict[key][0])
-        plt.plot(np.linspace(0.11, 0.14, 300), res.intercept + res.slope*np.linspace(0.11, 0.14, 300), c=color)
+        plt.plot(np.linspace(0.1, 0.13, 300), res.intercept + res.slope*np.linspace(0.1, 0.13, 300), c=color)
 
     plt.legend()
     plt.ylabel('Logical Error Burst Rate')
@@ -102,6 +103,13 @@ if __name__ == "__main__":
     plt.minorticks_on()
     plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new_0705.png', bbox_inches="tight")
     plt.clf()
+    
+
+     
+    
+    
+
+
     
 
     
