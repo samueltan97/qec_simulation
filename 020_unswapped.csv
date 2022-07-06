@@ -1,0 +1,6 @@
+,Burst_Error_Rate,Distance,Physical_Error_Rate,Number_of_Rounds,Logical_Error_Rate
+0,0.1,5,0.02,64,0.12437
+1,0.1,5,0.02,96,0.13794
+2,0.1,5,0.02,128,0.15397
+3,0.1,5,0.02,160,0.16655
+4,0.1,5,0.02,192,0.17906

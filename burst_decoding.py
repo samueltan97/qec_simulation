@@ -5,9 +5,9 @@ import numpy as np
 import pymatching
 from typing import Callable, List
 
-def count_logical_errors(num_shots: int, **kwargs) -> int:
-    circuit = kwargs.get('circuit', False)
+def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
     shots = circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
+
     detector_parts = shots[:, :circuit.num_detectors]
     actual_observable_parts = shots[:, circuit.num_detectors:]
     predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, detector_parts)
@@ -18,20 +18,14 @@ def count_logical_errors(num_shots: int, **kwargs) -> int:
             num_errors += 1
     return num_errors
 
-def count_logical_errors_with_circuit_swapped(num_shots:int, **kwargs) -> int:
-    circuit = kwargs.get('circuit', False)
-    burst_circuit = kwargs.get('burst_circuit', False)
+##########################################################
+#################### BEGIN GLUE CODE #####################
+##########################################################
 
-    burst_shots = burst_circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
-    burst_detector_parts = burst_shots[:, :burst_circuit.num_detectors]
-    actual_burst_observable_parts = burst_shots[:, circuit.num_detectors:]
-    predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, burst_detector_parts)
-
-    num_errors = 0
-    for actual, predicted in zip(actual_burst_observable_parts, predicted_observable_parts):
-        if not np.array_equal(actual, predicted):
-            num_errors += 1
-    return num_errors
+import math
+import networkx as nx
+import pymatching
+from typing import Callable, List
 
 
 def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
@@ -50,9 +44,8 @@ def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
     for k in range(num_shots):
         expanded_det = np.resize(det_samples[k], num_dets + 1)
         expanded_det[-1] = 0
-        predictions[k] = matching_graph.decode(expanded_det, num_neighbours=None)
+        predictions[k] = matching_graph.decode(expanded_det)
     return predictions
-
 
 def detector_error_model_to_pymatching_graph(model: stim.DetectorErrorModel) -> pymatching.Matching:
     """Convert a stim error model into a pymatching graph."""
@@ -72,6 +65,7 @@ def detector_error_model_to_pymatching_graph(model: stim.DetectorErrorModel) -> 
     g.add_edge(num_detectors, num_detectors + 1, weight=9999999999, qubit_id=list(range(num_observables)))
 
     return pymatching.Matching(g)
+
 
 def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph:
     """Convert a stim error model into a NetworkX graph."""
@@ -109,6 +103,7 @@ def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph
     eval_model(model, handle_error, handle_detector_coords)
 
     return g
+
 
 def eval_model(
         model: stim.DetectorErrorModel,
@@ -163,3 +158,7 @@ def eval_model(
                 else:
                     raise NotImplementedError()
     _helper(model, 1)
+
+##########################################################
+##################### END GLUE CODE ######################
+##########################################################

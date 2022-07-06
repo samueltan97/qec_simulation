@@ -45,6 +45,7 @@ class Simulation:
                         compiled_circuit_parameters['before_measure_flip_probability'] = noise
                     if compiled_circuit_parameters.get('before_round_data_depolarization') is not None:
                         compiled_circuit_parameters['before_round_data_depolarization'] = noise
+                    # print(repr(stim.Circuit.generated(**compiled_circuit_parameters)))
                     self.circuit_array[d_index][n_index].append(stim.Circuit.generated(**compiled_circuit_parameters))
 
     def simulate_logical_error_rate(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> pd.DataFrame:
@@ -77,7 +78,39 @@ class Simulation:
 
                     print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
         return pd.DataFrame(results, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate'])
-    
+
+    def simulate_logical_error_rate_with_circuits_swapped(self, num_shots:int, num_cores:int, with_burst_error:bool=False, burst_error_rate:float=0.0, burst_error_timestep:List[float]=[]) -> pd.DataFrame:
+        '''
+        :param num_shots: Int -> the number of shots i.e. the number of times we want to repeat the simulation
+        :param num_cores: Int -> the number of cores to use for the computation
+        :param with_burst_error: Bool -> whether the simulation should include a single timestep burst error
+        :param burst_error_rate: Float -> the error rate for the depolarizing burst error
+        :param burst_error_timestep: List[Float] -> After which timestep when we ought to insert the burst error; 
+        List should have the same length as the list of rounds and -1 means no burst error inserted for that instance
+        '''
+        completed_simulations = 0
+        total_simulations = len(self.rounds) * len(self.distances) * len(self.noises)
+        # Initialize 3D array that will contain the logical error rate for each simulation corresponding
+        # to the code distance, noise parameter, and number of rounds
+        results = []
+        for d_index in range(len(self.distances)):
+            for n_index in range(len(self.noises)):
+                for r_index in range(len(self.rounds)):
+                    pool_array = [int(num_shots//num_cores)] * num_cores
+                    for i in range(num_shots % num_cores):
+                        pool_array[i] += 1
+                    with Pool(num_cores) as p:
+                        corresponding_circuit = self.circuit_array[d_index][n_index][r_index]
+                        if with_burst_error:
+                            corresponding_circuit = self.insert_burst_error(corresponding_circuit, burst_error_rate, burst_error_timestep[r_index])
+                        logical_error_rate = sum(p.map(partial(decoding.count_logical_errors_with_circuit_swapped, circuit=self.circuit_array[d_index][n_index][r_index], burst_circuit=corresponding_circuit), pool_array))/num_shots
+                        results.append([burst_error_rate, self.distances[d_index], self.noises[n_index], self.rounds[r_index], logical_error_rate])
+                    completed_simulations += 1
+
+                    print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
+        return pd.DataFrame(results, columns=['Burst_Error_Rate', 'Distance','Physical_Error_Rate','Number_of_Rounds', 'Logical_Error_Rate'])
+
+
     def simulation_results_to_csv(self, simulation_results:dict, csv_name:str):
         '''
         :param simulation_results: Dict -> dictionary with burst error rates as keys and dataframes as value
