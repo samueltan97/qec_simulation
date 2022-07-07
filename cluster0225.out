@@ -1,0 +1,95 @@
+Completed: 1/30
+Completed: 2/30
+Completed: 3/30
+Completed: 4/30
+Completed: 5/30
+Completed: 6/30
+Completed: 7/30
+Completed: 8/30
+Completed: 9/30
+Completed: 10/30
+Completed: 11/30
+Completed: 12/30
+Completed: 13/30
+Completed: 14/30
+Completed: 15/30
+Completed: 16/30
+Completed: 17/30
+Completed: 18/30
+Completed: 19/30
+Completed: 20/30
+Completed: 21/30
+Completed: 22/30
+Completed: 23/30
+Completed: 24/30
+Completed: 25/30
+Completed: 26/30
+Completed: 27/30
+Completed: 28/30
+Completed: 29/30
+Completed: 30/30
+Time taken
+17530.44220662117
+Burst Error Rate
+0.095
+    Burst_Error_Rate  Distance  ...  Number_of_Rounds  Logical_Error_Rate
+0              0.095         3  ...                64             0.34251
+1              0.095         3  ...                96             0.41151
+2              0.095         3  ...               128             0.44871
+3              0.095         3  ...               160             0.47035
+4              0.095         3  ...               192             0.48383
+5              0.095         3  ...                64             0.37007
+6              0.095         3  ...                96             0.42897
+7              0.095         3  ...               128             0.46150
+8              0.095         3  ...               160             0.47627
+9              0.095         3  ...               192             0.48502
+10             0.095         5  ...                64             0.18289
+11             0.095         5  ...                96             0.24752
+12             0.095         5  ...               128             0.29834
+13             0.095         5  ...               160             0.34065
+14             0.095         5  ...               192             0.36821
+15             0.095         5  ...                64             0.24799
+16             0.095         5  ...                96             0.29683
+17             0.095         5  ...               128             0.33860
+18             0.095         5  ...               160             0.36908
+19             0.095         5  ...               192             0.39771
+20             0.095         7  ...                64             0.07918
+21             0.095         7  ...                96             0.11707
+22             0.095         7  ...               128             0.14908
+23             0.095         7  ...               160             0.17747
+24             0.095         7  ...               192             0.20365
+25             0.095         7  ...                64             0.16338
+26             0.095         7  ...                96             0.19363
+27             0.095         7  ...               128             0.21840
+28             0.095         7  ...               160             0.24199
+29             0.095         7  ...               192             0.26162
+
+[30 rows x 5 columns]
+Completed: 1/30
+Completed: 2/30
+Completed: 3/30
+Completed: 4/30
+Completed: 5/30
+Completed: 6/30
+Completed: 7/30
+Completed: 8/30
+Completed: 9/30
+Completed: 10/30
+Completed: 11/30
+Completed: 12/30
+Completed: 13/30
+Completed: 14/30
+Completed: 15/30
+Completed: 16/30
+Completed: 17/30
+Completed: 18/30
+Completed: 19/30
+Completed: 20/30
+Completed: 21/30
+Completed: 22/30
+Completed: 23/30
+Completed: 24/30
+Completed: 25/30
+Completed: 26/30
+Completed: 27/30
+Completed: 28/30

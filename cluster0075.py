@@ -31,18 +31,18 @@ if __name__ == "__main__":
     num_shots = 100000
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
     burst_error_rates = np.linspace(0.11, 0.14, 10)
-    for burst_error_rate in burst_error_rates:
-        st = time.time()
-        simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
-            circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-        simulation_results = simulation.simulate_logical_error_rate(num_shots, 12, True, burst_error_rate, burst_error_timesteps)
-        print('Time taken')
-        print(time.time() - st)
-        print('Burst Error Rate')
-        print(burst_error_rate)
-        print(simulation_results)
-        data_dictionary[burst_error_rate] = simulation_results
-        simulation.simulation_results_to_csv(data_dictionary, '0075_results_expanded_0705')
+    # for burst_error_rate in burst_error_rates:
+    #     st = time.time()
+    #     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
+    #         circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
+    #     simulation_results = simulation.simulate_logical_error_rate(num_shots, 12, True, burst_error_rate, burst_error_timesteps)
+    #     print('Time taken')
+    #     print(time.time() - st)
+    #     print('Burst Error Rate')
+    #     print(burst_error_rate)
+    #     print(simulation_results)
+    #     data_dictionary[burst_error_rate] = simulation_results
+    #     simulation.simulation_results_to_csv(data_dictionary, '0075_results_expanded_0705')
     
     data_dictionary = pd.read_csv('0075_results_expanded_0705.csv')
     
