@@ -24,28 +24,28 @@ if __name__ == "__main__":
     from scipy.stats import linregress
 
     colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
-    num_shots = 100000
+    num_shots = 10000
 
     data_dictionary = dict()
     rounds = [64, 96, 128, 160, 192, 64, 96, 128, 160, 192]
     distances = [3, 5, 7]
     noises = [0.015]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
-    burst_error_rates = np.linspace(0.1, 0.13, 10)
-    # for burst_error_rate in burst_error_rates:
-    #     st = time.time()
-    #     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
-    #         circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-    #     simulation_results = simulation.simulate_logical_error_rate(100000, 12, True, burst_error_rate, burst_error_timesteps)
-    #     print('Time taken')
-    #     print(time.time() - st)
-    #     print('Burst Error Rate')
-    #     print(burst_error_rate)
-    #     print(simulation_results)
-    #     data_dictionary[burst_error_rate] = simulation_results
-    #     simulation.simulation_results_to_csv(data_dictionary, '015_results_expanded_0705')
+    burst_error_rates = np.linspace(0.8, 0.125, 10)
+    for burst_error_rate in burst_error_rates:
+        st = time.time()
+        simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
+            circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
+        simulation_results = simulation.simulate_logical_error_rate(100000, 12, True, burst_error_rate, burst_error_timesteps)
+        print('Time taken')
+        print(time.time() - st)
+        print('Burst Error Rate')
+        print(burst_error_rate)
+        print(simulation_results)
+        data_dictionary[burst_error_rate] = simulation_results
+        simulation.simulation_results_to_csv(data_dictionary, '015_results_expanded_0711.csv')
     
-    data_dictionary = pd.read_csv('015_results_expanded_0705.csv')
+    data_dictionary = pd.read_csv('015_results_expanded_0711.csv')
     
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     plt.grid(b=True, which='major', linestyle='-')
     plt.grid(b=True, which='minor', linestyle='--')
     plt.minorticks_on()
-    plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new_0705.png', bbox_inches="tight")
+    plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new_0711.png', bbox_inches="tight")
     plt.clf()
         
         
