@@ -205,13 +205,22 @@ class Simulation:
                         repeat_count=timestep_num - 1,
                         body=instruction.body_copy()
                     ))
-                    result.append('DEPOLARIZE1', range(n), burst_error_rate)
+
+                    for single_instruction in instruction.body_copy():
+                        if single_instruction.name =="DEPOLARIZE1":
+                            result.append('DEPOLARIZE1', single_instruction.targets_copy(), burst_error_rate)
+                        elif single_instruction.name == 'X_ERROR':
+                            result.append('X_ERROR', single_instruction.targets_copy(), 2 * burst_error_rate / 3)
+                        else:
+                            result.append(single_instruction)
+
                     result.append(stim.CircuitRepeatBlock(
-                        repeat_count=instruction.repeat_count - timestep_num + 1,
+                        repeat_count=instruction.repeat_count - timestep_num,
                         body=instruction.body_copy()
                     ))
                 else:
                     result.append(instruction)
+
             return result
 
     def compute_clopper_pearson_error_bars(self, logical_error_rates: np.ndarray, confidence_interval:float, num_shots: int) -> List:

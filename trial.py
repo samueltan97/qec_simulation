@@ -25,30 +25,32 @@ if __name__ == "__main__":
     st = time.time()
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
         circuit_parameters={'code_task': 'surface_code:unrotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-    simulation_results = simulation.simulate_logical_error_rate(num_shots, 1, False)
-    print('Time taken')
-    print(time.time() - st)
-    print(simulation_results)
-    data_dictionary[0] = simulation_results
-    simulation.simulation_results_to_csv(data_dictionary, 'phenom_new')
-    
-    
-    data_dictionary = pd.read_csv('phenom_new.csv')
-    
-    simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
-        circuit_parameters={'code_task': 'surface_code:unrotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
+    circuit = simulation.circuit_array[0][0][0]
+    print(type(circuit))
+    n = circuit.num_qubits
+    result = stim.Circuit()
+    timestep_num = 15
+    for instruction in circuit:
+        # print(instruction)
+        if isinstance(instruction, stim.CircuitRepeatBlock):
+            result.append(stim.CircuitRepeatBlock(
+                repeat_count=timestep_num - 1,
+                body=instruction.body_copy()
+            ))
 
-    for d_index, distance in enumerate(distances):
-        sub_df = data_dictionary[(data_dictionary['Distance'] == distance) & (data_dictionary['Number_of_Rounds'] == rounds[d_index])]
-        logical_error_rates = sub_df['Logical_Error_Rate'].to_numpy()
-        CI_logical_error_rates = simulation.compute_clopper_pearson_error_bars(logical_error_rates, 0.95, num_shots)
-        plt.errorbar(noises, logical_error_rates, yerr=CI_logical_error_rates, fmt='o', capsize=10, c=next(colors), label=str(distance))
-        # plt.plot(noises, logical_error_rates, c=next(colors), label=str(distance))
-    
-    
-    plt.ylabel('Logical Error Rate')
-    # plt.semilogy()
-    plt.xlabel('Physical Error Rate')
-    plt.legend()
-    plt.savefig('new.png', bbox_inches="tight")
-    plt.clf()
+            for single_instruction in instruction.body_copy():
+                if single_instruction.name =="DEPOLARIZE1":
+                    result.append('DEPOLARIZE1', single_instruction.targets_copy(), 0.1)
+                elif single_instruction.name == 'X_ERROR':
+                    result.append('X_ERROR', single_instruction.targets_copy(), 2 * 0.1 / 3)
+                else:
+                    result.append(single_instruction)
+
+            # result.append('DEPOLARIZE1', range(n), burst_error_rate)
+            result.append(stim.CircuitRepeatBlock(
+                repeat_count=instruction.repeat_count - timestep_num,
+                body=instruction.body_copy()
+            ))
+        else:
+            result.append(instruction)
+    print(result)
