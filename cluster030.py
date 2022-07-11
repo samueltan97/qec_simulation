@@ -30,7 +30,7 @@ if __name__ == "__main__":
     distances = [3, 5, 7]
     noises = [0.03]
     burst_error_timesteps = [-1, -1, -1, -1, -1, 32, 48, 64, 80, 96]
-    burst_error_rates = np.linspace(0.8, 0.125, 10)
+    burst_error_rates = np.linspace(0.1, 0.16, 7)
     for burst_error_rate in burst_error_rates:
         st = time.time()
         simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
