@@ -1,7 +1,14 @@
 from typing import List
 from simulate import Simulation
-from typing import List
+import time
 import numpy as np
+from functools import partial
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+import stim
+import pandas as pd
+from itertools import cycle
+from scipy.stats import linregress
 
 def logical_error_rate_function_with_burst_error(x, lim_logical_error_rate_per_round, logical_burst_error_rate):
     results = []
@@ -11,41 +18,25 @@ def logical_error_rate_function_with_burst_error(x, lim_logical_error_rate_per_r
         results.append(0.5*(1-((1 - lim_logical_error_rate_per_round)**val)*(1 - logical_burst_error_rate)))
     return np.array(results)
 
-if __name__ == "__main__":
-    from simulate import Simulation
-    import time
-    import numpy as np
-    from functools import partial
-    import matplotlib.pyplot as plt
-    from scipy.optimize import curve_fit
-    import stim
-    import pandas as pd
-    from itertools import cycle
-    from scipy.stats import linregress
-
+def calc_error_burst_threshold(num_shots:int, rounds: List[int], distances: List[int], noises:List[float], error_burst_rates: np.ndarray, \
+    num_cores:int, csv_name:str, save_intermediate_plots:bool, plot_prefix:str):
     colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
-    num_shots = 10000
-
     data_dictionary = dict()
-    rounds = [32, 64, 96, 128, 160, 32, 64, 96, 128, 160]
-    distances = [3, 5, 7]
-    noises = [0.015]
-    burst_error_timesteps = [-1, -1, -1, -1, -1, 16, 32, 48, 64, 80]
-    burst_error_rates = np.linspace(0.08, 0.16, 12)
-    # for burst_error_rate in burst_error_rates:
-    #     st = time.time()
-    #     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
-    #         circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-    #     simulation_results = simulation.simulate_logical_error_rate(num_shots, 12, True, burst_error_rate, burst_error_timesteps)
-    #     print('Time taken')
-    #     print(time.time() - st)
-    #     print('Burst Error Rate')
-    #     print(burst_error_rate)
-    #     print(simulation_results)
-    #     data_dictionary[burst_error_rate] = simulation_results
-    #     simulation.simulation_results_to_csv(data_dictionary, '015_results_expanded_0711')
+    burst_error_timesteps = [-1] * (len(rounds) // 2) + [x//2 for x in rounds[len(rounds) // 2:]] 
+    for burst_error_rate in burst_error_rates:
+        st = time.time()
+        simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
+            circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
+        simulation_results = simulation.simulate_logical_error_rate(num_shots, num_cores, True, burst_error_rate, burst_error_timesteps)
+        print('Time taken')
+        print(time.time() - st)
+        print('Burst Error Rate')
+        print(burst_error_rate)
+        print(simulation_results)
+        data_dictionary[burst_error_rate] = simulation_results
+        simulation.simulation_results_to_csv(data_dictionary, csv_name)
     
-    data_dictionary = pd.read_csv('015_results_expanded_0711.csv')
+    data_dictionary = pd.read_csv(csv_name + '.csv')
     
     simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
@@ -59,15 +50,13 @@ if __name__ == "__main__":
             sub_df = data_dictionary[(np.isclose(data_dictionary['Burst_Error_Rate'], burst_error_rate)) & (data_dictionary['Distance'] == distance)]
             logical_error_rates = sub_df['Logical_Error_Rate'].to_numpy()
             CI_logical_error_rates = simulation.compute_clopper_pearson_error_bars(logical_error_rates, 0.95, num_shots)
-            norm_dist_error_for_logical_error_rates = simulation.compute_sigma_values_with_wald_interval(logical_error_rates, num_shots)
-            # print(CI_logical_error_rates)
-            # print(norm_dist_error_for_logical_error_rates)
-        
+            norm_dist_error_for_logical_error_rates = simulation.compute_sigma_values_with_wald_interval(logical_error_rates, num_shots)        
+            
             plt.ylabel('Logical Error Rate')
             plt.semilogy()
             plt.xlabel('Number of Rounds')
-            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 1.5%, \nburst error rate = ' + str(burst_error_rate * 100) +'%')
-            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 1.5%')
+            plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%, \nerror burst rate = ' + str(burst_error_rate * 100) +'%')
+            plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%')
             plt.errorbar(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], yerr=[x[int(len(rounds)/2):] for x in CI_logical_error_rates], fmt='o', capsize=10)
             plt.errorbar(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], yerr=[x[:int(len(rounds)/2)] for x in CI_logical_error_rates], fmt='o', capsize=10)
             
@@ -81,18 +70,16 @@ if __name__ == "__main__":
             plt.plot(x[int(len(x)/2):], y[int(len(x)/2):], c='tab:blue', linestyle='dashed', label='Burst Model Fit')
             plt.plot(x[:int(len(x)/2)], y[:int(len(x)/2)], c='tab:orange', linestyle='dashed', label='Burstless Model Fit')
             plt.legend()
-            # plt.savefig(str(distance) + '_' + str(burst_error_rate) + '_new.png', bbox_inches="tight")
+            if save_intermediate_plots:
+                plt.savefig(str(distance) + '_' + str(burst_error_rate) + '.png', bbox_inches="tight")
             plt.clf()
         logical_burst_error_rate_dict[distance] = (logical_burst_error_rates, logical_burst_error_rate_sigmas)
     
     for key in list(logical_burst_error_rate_dict.keys()):
         color = next(colors)
-        # print(key, logical_burst_error_rate_dict[key])
-        # print(logical_burst_error_rate_dict[key][1])
-        # plt.plot(burst_error_rates, logical_burst_error_rate_dict[key][0], c=color, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
         plt.errorbar(burst_error_rates, logical_burst_error_rate_dict[key][0], yerr=logical_burst_error_rate_dict[key][1], c=color, fmt='o', capsize=10, label='distance = ' + str(key)+ ', phenomenological noise = ' + str(noises[0] * 100) + '%')
         res = linregress(burst_error_rates, logical_burst_error_rate_dict[key][0])
-        plt.plot(np.linspace(0.08, 0.16, 300), res.intercept + res.slope*np.linspace(0.08, 0.16, 300), c=color)
+        plt.plot(np.linspace(error_burst_rates[0], error_burst_rates[-1], 300), res.intercept + res.slope*np.linspace(error_burst_rates[0], error_burst_rates[-1], 300), c=color)
 
     plt.legend()
     plt.ylabel('Logical Error Burst Rate')
@@ -101,12 +88,9 @@ if __name__ == "__main__":
     plt.grid(b=True, which='major', linestyle='-')
     plt.grid(b=True, which='minor', linestyle='--')
     plt.minorticks_on()
-    plt.savefig(str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold_new_0711.png', bbox_inches="tight")
+    plt.savefig(plot_prefix + '_' + str(noises[0] * 100) + '%_phenomenological_noise_burst_error_threshold.png', bbox_inches="tight")
     plt.clf()
-        
-        
-
-
+    
      
     
     

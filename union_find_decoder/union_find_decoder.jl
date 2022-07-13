@@ -1,73 +1,36 @@
-import stim
-import math
-import networkx as nx
-import numpy as np
-import pymatching
-from typing import Callable, List
+using UnionFind
+using Graphs
+using AbstractTrees
 
-def count_logical_errors(circuit: stim.Circuit, num_shots: int) -> int:
-    shots = circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
+function networkx_to_julia_graph(detector_error_nodes, detector_error_edges)
+    # detector_error_nodes is a tuple with the node_id as the first element and a dictionary of attributes
+    # as the second element
+    g = Graph()
+    node_coord_dict = Dict() 
+    for i in eachindex(detector_error_nodes)
+        add_vertex!(g)
+        node_coord_dict[i] = detector_error_nodes[1]
+    end
 
-    detector_parts = shots[:, :circuit.num_detectors]
-    actual_observable_parts = shots[:, circuit.num_detectors:]
-    predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, detector_parts)
+    for i in eachindex(detector_error_edges)
+        add_edge!(g, detector_error_edges[0], detector_error_edges[1])
+    end
 
-    num_errors = 0
-    for actual, predicted in zip(actual_observable_parts, predicted_observable_parts):
-        if not np.array_equal(actual, predicted):
-            num_errors += 1
-    return num_errors
+    return g, node_coord_dict
+end
 
-##########################################################
-#################### BEGIN GLUE CODE #####################
-##########################################################
+function initialize_cluster_trees_with_detector_parts(detector_parts)
+    cluster_set = Set([])
+    for i in eachindex(detector_parts)
+        
+    end
+end
 
-import math
-import networkx as nx
-import pymatching
-from typing import Callable, List
+function decode(detector_parts)
 
-
-def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
-                                               det_samples: np.ndarray,
-                                               ) -> np.ndarray:
-    """Turn detection events into predicted observable errors."""
-    error_model = circuit.detector_error_model(decompose_errors=True)
-    matching_graph = detector_error_model_to_pymatching_graph(error_model)
-
-    num_shots = det_samples.shape[0]
-    num_obs = circuit.num_observables
-    num_dets = circuit.num_detectors
-    assert det_samples.shape[1] == num_dets
-
-    predictions = np.zeros(shape=(num_shots, num_obs), dtype=np.bool8)
-    for k in range(num_shots):
-        expanded_det = np.resize(det_samples[k], num_dets + 1)
-        expanded_det[-1] = 0
-        predictions[k] = matching_graph.decode(expanded_det)
-    return predictions
-
-def detector_error_model_to_pymatching_graph(model: stim.DetectorErrorModel) -> pymatching.Matching:
-    """Convert a stim error model into a pymatching graph."""
-    g = detector_error_model_to_nx_graph(model)
-    num_detectors = model.num_detectors
-    num_observables = model.num_observables
-
-    # Add spandrels to the graph to ensure pymatching will accept it.
-    # - Make sure there's only one connected component.
-    # - Make sure no detector nodes are skipped.
-    # - Make sure no observable nodes are skipped.
-    for k in range(num_detectors):
-        g.add_node(k)
-    g.add_node(num_detectors + 1)
-    for k in range(num_detectors + 1):
-        g.add_edge(k, num_detectors + 1, weight=9999999999)
-    g.add_edge(num_detectors, num_detectors + 1, weight=9999999999, qubit_id=list(range(num_observables)))
-
-    return pymatching.Matching(g)
-
-
-def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph:
+end
+        addnode!(g, )
+    def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph:
     """Convert a stim error model into a NetworkX graph."""
 
     g = nx.Graph()
@@ -88,22 +51,21 @@ def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph
             raise NotImplementedError(
                 f"Error with more than 2 symptoms can't become an edge or boundary edge: {dets!r}.")
         if g.has_edge(*dets):
-            edge_data = g.get_edge_data(*dets)
+            edge_data = getedgedata!(g, *dets)
             old_p = edge_data["error_probability"]
             old_frame_changes = edge_data["qubit_id"]
             # If frame changes differ, the code has distance 2; just keep whichever was first.
-            if set(old_frame_changes) == set(frame_changes):
+            if issetequal(old_frame_changes, frame_changes)
                 p = p * (1 - old_p) + old_p * (1 - p)
-                g.remove_edge(*dets)
-        g.add_edge(*dets, weight=math.log((1 - p) / p), qubit_id=frame_changes, error_probability=p)
+                deleteedge!(g, *dets)
+        addedge!(g, dets..., Dict('weight'=> log((1 - p) / p), 'qubit_id'=>frame_changes, 'error_probability'=>p))
 
-    def handle_detector_coords(detector: int, coords: np.ndarray):
-        g.add_node(detector, coords=coords)
+    function handle_detector_coords(detector, coords):
+        addnode!(g, (detector, coords=coords))
 
     eval_model(model, handle_error, handle_detector_coords)
 
     return g
-
 
 def eval_model(
         model: stim.DetectorErrorModel,
@@ -158,7 +120,3 @@ def eval_model(
                 else:
                     raise NotImplementedError()
     _helper(model, 1)
-
-##########################################################
-##################### END GLUE CODE ######################
-##########################################################

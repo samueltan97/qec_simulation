@@ -13,7 +13,7 @@ def count_logical_errors(num_shots: int, **kwargs) -> int:
     shots = circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
     detector_parts = shots[:, :circuit.num_detectors]
     actual_observable_parts = shots[:, circuit.num_detectors:]
-    predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, detector_parts)
+    predicted_observable_parts = predict_observable_errors_using_union_find(circuit, detector_parts)
 
     num_errors = 0
     for actual, predicted in zip(actual_observable_parts, predicted_observable_parts):
@@ -21,28 +21,22 @@ def count_logical_errors(num_shots: int, **kwargs) -> int:
             num_errors += 1
     return num_errors
 
-def count_logical_errors_with_circuit_swapped(num_shots:int, **kwargs) -> int:
-    circuit = kwargs.get('circuit', False)
-    burst_circuit = kwargs.get('burst_circuit', False)
-
-    burst_shots = burst_circuit.compile_detector_sampler().sample(num_shots, append_observables=True)
-    burst_detector_parts = burst_shots[:, :burst_circuit.num_detectors]
-    actual_burst_observable_parts = burst_shots[:, circuit.num_detectors:]
-    predicted_observable_parts = predict_observable_errors_using_pymatching(circuit, burst_detector_parts)
-
-    num_errors = 0
-    for actual, predicted in zip(actual_burst_observable_parts, predicted_observable_parts):
-        if not np.array_equal(actual, predicted):
-            num_errors += 1
-    return num_errors
-
-
-def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
+def predict_observable_errors_using_union_find(circuit: stim.Circuit,
                                                det_samples: np.ndarray,
                                                ) -> np.ndarray:
-    """Turn detection events into predicted observable errors."""
+    """
+    Turn detection events into predicted observable errors.
+    The SORTED nodes and edges in matching_graph will be passed to the Julia code
+    """
     error_model = circuit.detector_error_model(decompose_errors=True)
-    matching_graph = detector_error_model_to_pymatching_graph(error_model)
+    matching_graph = detector_error_model_to_full_decoding_graph(error_model)
+
+    f = open("test_graph.nodelist", "w")
+    for node in list(g.nodes(data=True)):
+        print(node, type(node))
+        f.write(str(node[0]) + '\t' + str(node[1])+ '\n')
+    f.close()
+    nx.write_edgelist(g, 'test_graph.edgelist')
 
     num_shots = det_samples.shape[0]
     num_obs = circuit.num_observables
@@ -57,8 +51,8 @@ def predict_observable_errors_using_pymatching(circuit: stim.Circuit,
     return predictions
 
 
-def detector_error_model_to_pymatching_graph(model: stim.DetectorErrorModel) -> pymatching.Matching:
-    """Convert a stim error model into a pymatching graph."""
+def detector_error_model_to_full_decoding_graph(model: stim.DetectorErrorModel) -> nx.Graph:
+    """Convert a stim error model into a NetworkX graph with all nodes."""
     g = detector_error_model_to_nx_graph(model)
     num_detectors = model.num_detectors
     num_observables = model.num_observables
@@ -73,8 +67,8 @@ def detector_error_model_to_pymatching_graph(model: stim.DetectorErrorModel) -> 
     for k in range(num_detectors + 1):
         g.add_edge(k, num_detectors + 1, weight=9999999999)
     g.add_edge(num_detectors, num_detectors + 1, weight=9999999999, qubit_id=list(range(num_observables)))
-
-    return pymatching.Matching(g)
+    
+    return g
 
 def detector_error_model_to_nx_graph(model: stim.DetectorErrorModel) -> nx.Graph:
     """Convert a stim error model into a NetworkX graph."""
