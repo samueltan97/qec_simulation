@@ -1,0 +1,201 @@
+Completed: 1/40
+Completed: 2/40
+Completed: 3/40
+Completed: 4/40
+Completed: 5/40
+Completed: 6/40
+Completed: 7/40
+Completed: 8/40
+Completed: 9/40
+Completed: 10/40
+Completed: 11/40
+Completed: 12/40
+Completed: 13/40
+Completed: 14/40
+Completed: 15/40
+Completed: 16/40
+Completed: 17/40
+Completed: 18/40
+Completed: 19/40
+Completed: 20/40
+Completed: 21/40
+Completed: 22/40
+Completed: 23/40
+Completed: 24/40
+Completed: 25/40
+Completed: 26/40
+Completed: 27/40
+Completed: 28/40
+Completed: 29/40
+Completed: 30/40
+Completed: 31/40
+Completed: 32/40
+Completed: 33/40
+Completed: 34/40
+Completed: 35/40
+Completed: 36/40
+Completed: 37/40
+Completed: 38/40
+Completed: 39/40
+Completed: 40/40
+Time taken
+5015.068269491196
+Burst Error Rate
+0.095
+    Burst_Error_Rate  Distance  ...  Number_of_Rounds  Logical_Error_Rate
+0              0.095         5  ...                24              0.1614
+1              0.095         5  ...                36              0.2305
+2              0.095         5  ...                48              0.2717
+3              0.095         5  ...                60              0.3170
+4              0.095         5  ...                24              0.2090
+5              0.095         5  ...                36              0.2644
+6              0.095         5  ...                48              0.2981
+7              0.095         5  ...                60              0.3321
+8              0.095         7  ...                24              0.0937
+9              0.095         7  ...                36              0.1314
+10             0.095         7  ...                48              0.1652
+11             0.095         7  ...                60              0.2087
+12             0.095         7  ...                24              0.1530
+13             0.095         7  ...                36              0.1972
+14             0.095         7  ...                48              0.2171
+15             0.095         7  ...                60              0.2507
+16             0.095         9  ...                24              0.0568
+17             0.095         9  ...                36              0.0756
+18             0.095         9  ...                48              0.1046
+19             0.095         9  ...                60              0.1196
+20             0.095         9  ...                24              0.1187
+21             0.095         9  ...                36              0.1381
+22             0.095         9  ...                48              0.1586
+23             0.095         9  ...                60              0.1739
+24             0.095        11  ...                24              0.0293
+25             0.095        11  ...                36              0.0446
+26             0.095        11  ...                48              0.0608
+27             0.095        11  ...                60              0.0743
+28             0.095        11  ...                24              0.0902
+29             0.095        11  ...                36              0.1052
+30             0.095        11  ...                48              0.1150
+31             0.095        11  ...                60              0.1335
+32             0.095        13  ...                24              0.0178
+33             0.095        13  ...                36              0.0255
+34             0.095        13  ...                48              0.0357
+35             0.095        13  ...                60              0.0422
+36             0.095        13  ...                24              0.0726
+37             0.095        13  ...                36              0.0915
+38             0.095        13  ...                48              0.0876
+39             0.095        13  ...                60              0.0987
+
+[40 rows x 5 columns]
+Completed: 1/40
+Completed: 2/40
+Completed: 3/40
+Completed: 4/40
+Completed: 5/40
+Completed: 6/40
+Completed: 7/40
+Completed: 8/40
+Completed: 9/40
+Completed: 10/40
+Completed: 11/40
+Completed: 12/40
+Completed: 13/40
+Completed: 14/40
+Completed: 15/40
+Completed: 16/40
+Completed: 17/40
+Completed: 18/40
+Completed: 19/40
+Completed: 20/40
+Completed: 21/40
+Completed: 22/40
+Completed: 23/40
+Completed: 24/40
+Completed: 25/40
+Completed: 26/40
+Completed: 27/40
+Completed: 28/40
+Completed: 29/40
+Completed: 30/40
+Completed: 31/40
+Completed: 32/40
+Completed: 33/40
+Completed: 34/40
+Completed: 35/40
+Completed: 36/40
+Completed: 37/40
+Completed: 38/40
+Completed: 39/40
+Completed: 40/40
+Time taken
+4986.126232147217
+Burst Error Rate
+0.10250000000000001
+    Burst_Error_Rate  Distance  ...  Number_of_Rounds  Logical_Error_Rate
+0             0.1025         5  ...                24              0.1604
+1             0.1025         5  ...                36              0.2277
+2             0.1025         5  ...                48              0.2778
+3             0.1025         5  ...                60              0.3120
+4             0.1025         5  ...                24              0.2243
+5             0.1025         5  ...                36              0.2791
+6             0.1025         5  ...                48              0.3164
+7             0.1025         5  ...                60              0.3470
+8             0.1025         7  ...                24              0.0929
+9             0.1025         7  ...                36              0.1337
+10            0.1025         7  ...                48              0.1788
+11            0.1025         7  ...                60              0.2032
+12            0.1025         7  ...                24              0.1657
+13            0.1025         7  ...                36              0.2049
+14            0.1025         7  ...                48              0.2342
+15            0.1025         7  ...                60              0.2602
+16            0.1025         9  ...                24              0.0559
+17            0.1025         9  ...                36              0.0759
+18            0.1025         9  ...                48              0.0990
+19            0.1025         9  ...                60              0.1292
+20            0.1025         9  ...                24              0.1317
+21            0.1025         9  ...                36              0.1476
+22            0.1025         9  ...                48              0.1665
+23            0.1025         9  ...                60              0.1894
+24            0.1025        11  ...                24              0.0326
+25            0.1025        11  ...                36              0.0405
+26            0.1025        11  ...                48              0.0602
+27            0.1025        11  ...                60              0.0742
+28            0.1025        11  ...                24              0.1122
+29            0.1025        11  ...                36              0.1220
+30            0.1025        11  ...                48              0.1321
+31            0.1025        11  ...                60              0.1446
+32            0.1025        13  ...                24              0.0174
+33            0.1025        13  ...                36              0.0264
+34            0.1025        13  ...                48              0.0375
+35            0.1025        13  ...                60              0.0453
+36            0.1025        13  ...                24              0.0983
+37            0.1025        13  ...                36              0.1015
+38            0.1025        13  ...                48              0.1051
+39            0.1025        13  ...                60              0.1156
+
+[40 rows x 5 columns]
+Completed: 1/40
+Completed: 2/40
+Completed: 3/40
+Completed: 4/40
+Completed: 5/40
+Completed: 6/40
+Completed: 7/40
+Completed: 8/40
+Completed: 9/40
+Completed: 10/40
+Completed: 11/40
+Completed: 12/40
+Completed: 13/40
+Completed: 14/40
+Completed: 15/40
+Completed: 16/40
+Completed: 17/40
+Completed: 18/40
+Completed: 19/40
+Completed: 20/40
+Completed: 21/40
+Completed: 22/40
+Completed: 23/40
+Completed: 24/40
+Completed: 25/40
+Completed: 26/40
+Completed: 27/40

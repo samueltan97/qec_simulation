@@ -48,6 +48,7 @@ def predict_observable_errors_using_union_find(circuit: stim.Circuit,
         expanded_det = np.resize(det_samples[k], num_dets + 1)
         expanded_det[-1] = 0
         predictions[k] = matching_graph.decode(expanded_det, num_neighbours=None)
+        print(k)
     return predictions
 
 

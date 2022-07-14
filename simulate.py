@@ -64,15 +64,16 @@ class Simulation:
         for d_index in range(len(self.distances)):
             for n_index in range(len(self.noises)):
                 for r_index in range(len(self.rounds)):
-                    pool_array = [int(num_shots//num_cores)] * num_cores
-                    for i in range(num_shots % num_cores):
-                        pool_array[i] += 1
-                    with Pool(num_cores) as p:
-                        corresponding_circuit = self.circuit_array[d_index][n_index][r_index]
-                        if with_burst_error:
-                            corresponding_circuit = self.insert_burst_error(corresponding_circuit, burst_error_rate, burst_error_timestep[r_index])
-                        logical_error_rate = sum(p.map(partial(decoding.count_logical_errors, circuit=corresponding_circuit), pool_array))/num_shots
-                        results.append([burst_error_rate, self.distances[d_index], self.noises[n_index], self.rounds[r_index], logical_error_rate])
+                    if self.circuit_array[d_index][n_index][r_index] is not None:
+                        pool_array = [int(num_shots//num_cores)] * num_cores
+                        for i in range(num_shots % num_cores):
+                            pool_array[i] += 1
+                        with Pool(num_cores) as p:
+                            corresponding_circuit = self.circuit_array[d_index][n_index][r_index]
+                            if with_burst_error:
+                                corresponding_circuit = self.insert_burst_error(corresponding_circuit, burst_error_rate, burst_error_timestep[r_index])
+                            logical_error_rate = sum(p.map(partial(decoding.count_logical_errors, circuit=corresponding_circuit), pool_array))/num_shots
+                            results.append([burst_error_rate, self.distances[d_index], self.noises[n_index], self.rounds[r_index], logical_error_rate])
                     completed_simulations += 1
 
                     print('Completed: ' + str(completed_simulations)  + '/' + str(total_simulations) )
