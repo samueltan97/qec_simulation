@@ -2,12 +2,12 @@
 
 # Submit this script with: sbatch sbatch.sh
 
-#SBATCH --time=72:00:00   # walltime
+#SBATCH --time=7:00:00   # walltime
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
 #SBATCH --partition=any
 #SBATCH --nodes=1   # number of nodes
-#SBATCH --mem-per-cpu=28G   # memory per CPU core
+#SBATCH --mem-per-cpu=6G   # memory per CPU core
 #SBATCH -J burst-error-threshold   # job name
 #SBATCH --mail-user=stan@caltech.edu   # email address
 
@@ -23,4 +23,4 @@
 
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load singularity/3.8.0
-singularity exec /home/stan/stim_container.sif python cluster.py
+singularity exec /home/stan/stim_container.sif python main.py

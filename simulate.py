@@ -8,6 +8,7 @@ from functools import partial
 import numpy as np
 from scipy.stats import beta
 import pandas as pd
+import os
 
 class Simulation:
     def __init__(self, rounds:List[int], distances: List[int], noises:List[float], \
@@ -122,7 +123,12 @@ class Simulation:
         final_df = df_array[0]
         for df in df_array[1:]:
             final_df = pd.concat([final_df, df], ignore_index=True)
-        final_df.to_csv('./' + csv_name + '.csv')
+
+        # if file does not exist write header 
+        if not os.path.isfile(csv_name + '.csv'):
+            final_df.to_csv(csv_name + '.csv', header='column_names')
+        else: # else it exists so append without writing the header
+            final_df.to_csv(csv_name + '.csv', mode='a', header=False)
     
     
 

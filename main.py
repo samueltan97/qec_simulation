@@ -1,13 +1,13 @@
 import routine_simulation
 import numpy as np
 
-num_shots = 100
-distances = [5, 7, 9, 11, 13]
+num_shots = 1000
+distances = [5, 7, 9, 11]
 rounds = [10 * x for x in distances]
 noises = [0.03]
-error_burst_rates = [0.16]
+error_burst_rates = np.linspace(0.09, 0.15, 7)
 num_cores = 32
-csv_file_name = 'test_speed'
+csv_file_name = 'test'
 process_data = False
 save_intermediate_plots = True
 plot_prefix = 'happy'
