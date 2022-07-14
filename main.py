@@ -2,8 +2,8 @@ import routine_simulation
 import numpy as np
 
 num_shots = 100
-distances = np.array([5, 7, 9, 11, 13])
-rounds = 10 * distances
+distances = [5, 7, 9, 11, 13]
+rounds = [10 * x for x in distances]
 noises = [0.03]
 error_burst_rates = [0.16]
 num_cores = 32

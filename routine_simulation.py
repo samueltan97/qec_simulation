@@ -1,3 +1,4 @@
+from distutils.log import error
 from typing import List
 from simulate import Simulation
 import time
@@ -23,17 +24,20 @@ def calc_error_burst_threshold(num_shots:int, rounds: List[int], distances: List
     process_data:bool, save_intermediate_plots:bool, plot_prefix:str, fix_rounds_to_distance:bool):
     colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
     data_dictionary = dict()
+    rounds = 2*rounds
     burst_error_timesteps = [-1] * (len(rounds) // 2) + [x//2 for x in rounds[len(rounds) // 2:]] 
-    for burst_error_rate in error_burst_rates:
-        st = time.time()
-        simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
+    simulation = Simulation(rounds=rounds, distances=distances, noises=noises, \
             circuit_parameters={'code_task': 'surface_code:rotated_memory_z', 'before_round_data_depolarization':'', 'before_measure_flip_probability':''})
-        if fix_rounds_to_distance:
+    if fix_rounds_to_distance:
             for i in range(len(distances)):
                 for j in range(len(noises)):
                     for k in range(len(rounds)):
-                        if i != k:
+                        if i != k and i != (k - len(distances)):
                             simulation.circuit_array[i][j][k] = None
+    print(rounds)
+    print(burst_error_timesteps)
+    for burst_error_rate in error_burst_rates:
+        st = time.time()
         simulation_results = simulation.simulate_logical_error_rate(num_shots, num_cores, True, burst_error_rate, burst_error_timesteps)
         print('Time taken')
         print(time.time() - st)
