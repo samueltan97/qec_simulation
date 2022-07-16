@@ -22,7 +22,7 @@ def logical_error_rate_function_with_burst_error(x, lim_logical_error_rate_per_r
 def calc_error_burst_threshold(num_shots:int, rounds: List[int], distances: List[int], \
     noises:List[float], error_burst_rates: np.ndarray, num_cores:int, csv_name:str, \
     process_data:bool, save_intermediate_plots:bool, plot_prefix:str, fix_rounds_to_distance:bool):
-    colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'yellow'])
+    colors = cycle(['tab:blue', 'tab:orange', 'tab:red', 'green'])
     data_dictionary = dict()
     rounds = 2*rounds
     burst_error_timesteps = [-1] * (len(rounds) // 2) + [x//2 for x in rounds[len(rounds) // 2:]] 
@@ -34,8 +34,6 @@ def calc_error_burst_threshold(num_shots:int, rounds: List[int], distances: List
                     for k in range(len(rounds)):
                         if i != k and i != (k - len(distances)):
                             simulation.circuit_array[i][j][k] = None
-    print(rounds)
-    print(burst_error_timesteps)
     for burst_error_rate in error_burst_rates:
         st = time.time()
         simulation_results = simulation.simulate_logical_error_rate(num_shots, num_cores, True, burst_error_rate, burst_error_timesteps)
@@ -68,20 +66,44 @@ def calc_error_burst_threshold(num_shots:int, rounds: List[int], distances: List
                 plt.ylabel('Logical Error Rate')
                 plt.semilogy()
                 plt.xlabel('Number of Rounds')
-                plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%, \nerror burst rate = ' + str(burst_error_rate * 100) +'%')
-                plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%')
-                plt.errorbar(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], yerr=[x[int(len(rounds)/2):] for x in CI_logical_error_rates], fmt='o', capsize=10)
-                plt.errorbar(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], yerr=[x[:int(len(rounds)/2)] for x in CI_logical_error_rates], fmt='o', capsize=10)
                 
-                initial_guess_lim_logical_error_rate_per_round = 1 - ((1 - 2*logical_error_rates[int((len(logical_error_rates)/2)) - 1])**(1/rounds[int((len(logical_error_rates)/2)) - 1]))
-                initial_guess_logical_burst_error_rate = 1 - ((1 - 2*logical_error_rates[-1])/((1-initial_guess_lim_logical_error_rate_per_round)**rounds[-1]))
-                popt, pcov = curve_fit(logical_error_rate_function_with_burst_error, rounds, logical_error_rates, [initial_guess_lim_logical_error_rate_per_round, initial_guess_logical_burst_error_rate], norm_dist_error_for_logical_error_rates, absolute_sigma=True)
+                
+                # For single point fixed rounds to distance plotting
+                burst_error_bars = np.zeros(shape=(2,1))
+                burstless_error_bars = np.zeros(shape=(2,1))
+                for index, bounds in enumerate(CI_logical_error_rates):
+                    burst_error_bars[index] = bounds[1]
+                    burstless_error_bars[index] = bounds[0]
+                plt.scatter([rounds[d_index]], [logical_error_rates[1]], label='distance = ' + str(distance) + ', phenomenological noise = 3%, \nerror burst rate = ' + str(burst_error_rate * 100) +'%')
+                plt.scatter([rounds[d_index]], [logical_error_rates[0]], label='distance = ' + str(distance) + ', phenomenological noise = 3%')
+                plt.errorbar([rounds[d_index]], [logical_error_rates[1]], yerr=burst_error_bars, fmt='o', capsize=10)
+                plt.errorbar([rounds[d_index]], [logical_error_rates[0]], yerr=burstless_error_bars, fmt='o', capsize=10)
+                initial_guess_lim_logical_error_rate_per_round = 1 - ((1 - 2*logical_error_rates[0])**(1/rounds[d_index]))
+                initial_guess_logical_burst_error_rate = 1 - ((1 - 2*logical_error_rates[-1])/((1-initial_guess_lim_logical_error_rate_per_round)**rounds[d_index]))
+                popt, pcov = curve_fit(logical_error_rate_function_with_burst_error, 2*[rounds[d_index]], logical_error_rates, [initial_guess_lim_logical_error_rate_per_round, initial_guess_logical_burst_error_rate], norm_dist_error_for_logical_error_rates, absolute_sigma=True)
+                print(popt, pcov)
                 logical_burst_error_rates.append(popt[1])    
                 logical_burst_error_rate_sigmas.append(2*np.sqrt(np.diag(pcov))[1])        
                 x = np.concatenate((np.linspace(1, 300, 300), np.linspace(1, 300, 300)))
                 y = logical_error_rate_function_with_burst_error(x, *popt)
                 plt.plot(x[int(len(x)/2):], y[int(len(x)/2):], c='tab:blue', linestyle='dashed', label='Burst Model Fit')
                 plt.plot(x[:int(len(x)/2)], y[:int(len(x)/2)], c='tab:orange', linestyle='dashed', label='Burstless Model Fit')
+                
+                
+                # plt.scatter(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%, \nerror burst rate = ' + str(burst_error_rate * 100) +'%')
+                # plt.scatter(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], label='distance = ' + str(distance) + ', phenomenological noise = 2.25%')
+                # plt.errorbar(rounds[int(len(rounds)/2):], logical_error_rates[int(len(rounds)/2):], yerr=[x[int(len(rounds)/2):] for x in CI_logical_error_rates], fmt='o', capsize=10)
+                # plt.errorbar(rounds[:int(len(rounds)/2)], logical_error_rates[:int(len(rounds)/2)], yerr=[x[:int(len(rounds)/2)] for x in CI_logical_error_rates], fmt='o', capsize=10)
+                
+                # initial_guess_lim_logical_error_rate_per_round = 1 - ((1 - 2*logical_error_rates[int((len(logical_error_rates)/2)) - 1])**(1/rounds[int((len(logical_error_rates)/2)) - 1]))
+                # initial_guess_logical_burst_error_rate = 1 - ((1 - 2*logical_error_rates[-1])/((1-initial_guess_lim_logical_error_rate_per_round)**rounds[-1]))
+                # popt, pcov = curve_fit(logical_error_rate_function_with_burst_error, rounds, logical_error_rates, [initial_guess_lim_logical_error_rate_per_round, initial_guess_logical_burst_error_rate], norm_dist_error_for_logical_error_rates, absolute_sigma=True)
+                # logical_burst_error_rates.append(popt[1])    
+                # logical_burst_error_rate_sigmas.append(2*np.sqrt(np.diag(pcov))[1])        
+                # x = np.concatenate((np.linspace(1, 300, 300), np.linspace(1, 300, 300)))
+                # y = logical_error_rate_function_with_burst_error(x, *popt)
+                # plt.plot(x[int(len(x)/2):], y[int(len(x)/2):], c='tab:blue', linestyle='dashed', label='Burst Model Fit')
+                # plt.plot(x[:int(len(x)/2)], y[:int(len(x)/2)], c='tab:orange', linestyle='dashed', label='Burstless Model Fit')
                 plt.legend()
                 if save_intermediate_plots:
                     plt.savefig(str(distance) + '_' + str(burst_error_rate) + '.png', bbox_inches="tight")
